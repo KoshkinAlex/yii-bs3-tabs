@@ -50,3 +50,14 @@ $this->widget(
 ]);
 
 ```
+
+## Tabs properties
+
+**name** *(string)* Tab heading text label
+**id** *(string)* Tab string identifier
+**loadType** *(integer)* Each tab can be loaded with custom method, by default widgets $loadType property is used
+**redirectUrl** *(string)* If is set tab redirects to this page, without dynamic content loading
+**active** *(boolean)* Flag that shows currently selected tab
+**visible** *(boolean)* Visibility flag. Invisible tabs are not processed.
+**content** *(string)* or *(function)* that returns content html
+**htmlOptions** *(array)* passed to htmlOptions attribute
