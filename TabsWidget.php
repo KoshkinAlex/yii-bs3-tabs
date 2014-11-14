@@ -34,7 +34,7 @@ class TabsWidget extends \CWidget {
 	/** @var int All tabs loading type (can be customized for each tab separately) */
 	public $loadType = self::LOAD_ONETIME;
 
-	/** @var false|string Url that is used to load tabs content. By default current controller + action + GET params  */
+	/** @var false|string Url that is used to load tabs content. By default current controller + action + GET params */
 	public $loadUrl = false;
 
 	/** @var string $_GET parameter name that points to opened tab */
@@ -58,11 +58,11 @@ class TabsWidget extends \CWidget {
 	 */
 	public function init()
 	{
-		if ($this->loadType == self::LOAD_GET_PARAM || $this->loadType == self::LOAD_AJAX ) {
+		if ($this->loadType == self::LOAD_GET_PARAM || $this->loadType == self::LOAD_AJAX) {
 			if (!$this->loadUrl) {
 				$this->loadUrl[0] = \Yii::app()->urlManager->parseUrl(\Yii::app()->request);
-				foreach ($_GET as $k=>$v) {
-					if (in_array($k,['r'])) continue;
+				foreach ($_GET as $k => $v) {
+					if (in_array($k, ['r'])) continue;
 					$this->loadUrl[$k] = $v;
 				}
 			}
@@ -74,17 +74,18 @@ class TabsWidget extends \CWidget {
 			$this->normalizeTabSettings($this->items[$i]);
 		}
 
-		$url = \Yii::app()->getAssetManager()->publish(__DIR__.'/assets');
+		$url = \Yii::app()->getAssetManager()->publish(__DIR__ . '/assets');
 		\Yii::app()->getClientScript()
-			->registerScriptFile($url.'/tabs-widget.js')
-			->registerScriptFile($url.'/bootstrap-tabdrop/js/bootstrap-tabdrop.js')
-			->registerCssFile($url.'/bootstrap-tabdrop/css/tabdrop.css');
+			->registerScriptFile($url . '/tabs-widget.js')
+			->registerScriptFile($url . '/bootstrap-tabdrop/js/bootstrap-tabdrop.js')
+			->registerCssFile($url . '/bootstrap-tabdrop/css/tabdrop.css');
 	}
 
 	/**
 	 * Run widget
 	 */
-	public function run() {
+	public function run()
+	{
 
 		$labels = [];
 		$tabs = [];
@@ -94,8 +95,8 @@ class TabsWidget extends \CWidget {
 			\Yii::app()->request->getIsAjaxRequest()
 			&& $this->_openTabNum !== false
 			&& !empty($this->items[$this->_openTabNum])
-			&& $this->items[$this->_openTabNum]['loadType'] == self::LOAD_AJAX)
-		{
+			&& $this->items[$this->_openTabNum]['loadType'] == self::LOAD_AJAX
+		) {
 			ob_end_clean();
 			echo $this->items[$this->_openTabNum]['content'];
 			\Yii::app()->end();
@@ -116,15 +117,21 @@ class TabsWidget extends \CWidget {
 			}
 
 			$tabPanelOptions['class'] .= ' tab-pane';
-			if ($item['active']) $tabPanelOptions['class'] .= ' active';
+			if ($item['active']) {
+				$tabPanelOptions['class'] .= ' active';
+			}
 			$tabPanelOptions['id'] = $item['id'];
 
-			$labels[] = \CHtml::tag('li', ['class'=>($item['active'] ? 'active' : '')], \CHtml::link($item['name'], $item['url'], $linkOptions));
+			$labels[] = \CHtml::tag(
+				'li',
+				['class' => ($item['active'] ? 'active' : '')],
+				\CHtml::link($item['name'], $item['url'], $linkOptions)
+			);
 			$tabs[] = \CHtml::tag('div', $tabPanelOptions, $item['content']);
 		}
 
-		echo \CHtml::tag('ul', ['class'=>'nav nav-tabs', 'role'=>'tablist'], join('',$labels));
-		echo \CHtml::tag('div', ['class'=>'tab-content'], join('',$tabs));
+		echo \CHtml::tag('ul', ['class' => 'nav nav-tabs', 'role' => 'tablist'], join('', $labels));
+		echo \CHtml::tag('div', ['class' => 'tab-content'], join('', $tabs));
 	}
 
 	/**
@@ -139,30 +146,32 @@ class TabsWidget extends \CWidget {
 		if (!$tabSettings['visible']) {
 			$tabSettings = null;
 			unset ($tabSettings);
+
 			return;
 		}
 
 		if (empty($tabSettings['id'])) {
-			$tabSettings['id'] = $this->getId().$tabSettings['num'];
+			$tabSettings['id'] = $this->getId() . $tabSettings['num'];
 		}
 
 		$tabID = $tabSettings['id'] = strval($this->tabIdPrefix . $tabSettings['id']);
 
-		if (empty($tabSettings['loadType']) || !is_string($tabSettings['loadType'])) {
+		if (empty($tabSettings['loadType']) || !is_int($tabSettings['loadType'])) {
 			$tabSettings['loadType'] = $this->loadType;
 		}
 
 		if (!empty($tabSettings['redirectUrl'])) {
 			$tabSettings['loadType'] = self::LOAD_GET_PARAM;
 			$tabSettings['url'] = $tabSettings['redirectUrl'];
-		} elseif ($tabSettings['loadType'] === self::LOAD_GET_PARAM || $tabSettings['loadType'] === self::LOAD_AJAX) {
+		} elseif ($tabSettings['loadType'] == self::LOAD_GET_PARAM || $tabSettings['loadType'] == self::LOAD_AJAX) {
 			$dataLoadUrl = $this->loadUrl;
 			$dataLoadUrl[$this->getParam] = $tabID;
 			$tabSettings['url'] = \CHtml::normalizeUrl($dataLoadUrl);
 		}
 
+		if (!isset($tabSettings['url']) || !is_string($tabSettings['url'])) $tabSettings['url'] = '';
 		if ($tabSettings['loadType'] == self::LOAD_AJAX || $tabSettings['loadType'] == self::LOAD_ONETIME) {
-			$tabSettings['url'] .= '#'.$tabID;
+			$tabSettings['url'] .= '#' . $tabID;
 		}
 
 		if (empty($tabSettings['name']) || !is_string($tabSettings['name'])) {
@@ -170,7 +179,7 @@ class TabsWidget extends \CWidget {
 		}
 
 		// Setting active tab
-		if ($this->openTab === false || $tabID ===  $this->openTab || (!empty($tabSettings['active']) && $this->openTab === false)) {
+		if ($this->openTab === false || $tabID === $this->openTab || (!empty($tabSettings['active']) && $this->openTab === false)) {
 			$this->openTab = $tabID;
 			$this->_openTabNum = $tabSettings['num'];
 			$tabSettings['active'] = true;
