@@ -1,6 +1,8 @@
 Bootstrap 3 tabs widget for Yii 1.* framework
 ==========
-
+Renders bootstrap-3 tabs panel. Content of tabs can be rendered simultaneously with widget, or later, using AJAX or 
+fetching $_GET[$this->getParam] from request string.
+ 
 ## Requirements
 
 1. Yii framework (minimum tested version 1.13)
@@ -50,6 +52,20 @@ $this->widget(
 ]);
 
 ```
+
+## Loading types
+
+**LOAD_ONETIME** = 1**
+Tabs content is rendered simultaneously with widget.
+
+**LOAD_GET_PARAM = 2**;
+Tab content is rendered when $_GET[$this->getParam] param points to currently opened tab.
+
+**LOAD_AJAX = 3**
+Tab content is loaded by AJAX when tab opens. Active tab renders with widget and does not require other HTTP request. 
+If this render mode is used, widget cleans previous PHP output, prints tab content and terminates script execution. 
+This allows to use one controller action for all render types, but you should keep in mind not no do hard work before 
+calling widget this way (it will be lost).
 
 ## Tabs properties
 
