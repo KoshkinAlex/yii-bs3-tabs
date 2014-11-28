@@ -49,6 +49,9 @@ class TabsWidget extends \CWidget {
 	/** @var array htmlOptions for tab panel container */
 	public $tabPanelOptions = [];
 
+	/** @var null|string Replace content of currently opened tab  */
+	public $tabContent = null;
+
 	/** @var false|integer Open tab index */
 	private $_openTabNum = false;
 
@@ -68,10 +71,17 @@ class TabsWidget extends \CWidget {
 			}
 		}
 
-		$this->openTab = \Yii::app()->request->getParam($this->getParam, false);
+		$tabFromRequest = \Yii::app()->request->getParam($this->getParam, false);
+		if ($this->openTab) $this->openTab = $this->tabIdPrefix . $this->openTab;
+		if ($tabFromRequest) $this->openTab = $tabFromRequest;
+
 		foreach ($this->items as $i => $item) {
-			$this->items[$i]['num'] = $i;
-			$this->normalizeTabSettings($this->items[$i]);
+			if (isset($item["visible"]) && !$item["visible"]) {
+				unset($this->items[$i]);
+			} else {
+				$this->items[$i]['num'] = $i;
+				$this->normalizeTabSettings($this->items[$i]);
+			}
 		}
 
 		$url = \Yii::app()->getAssetManager()->publish(__DIR__ . '/assets');
@@ -141,15 +151,6 @@ class TabsWidget extends \CWidget {
 	protected function normalizeTabSettings(&$tabSettings)
 	{
 
-		// Check tab visibility and stop processing if false
-		$tabSettings['visible'] = (boolean)(empty($tabSettings['visible']) || $tabSettings['visible']);
-		if (!$tabSettings['visible']) {
-			$tabSettings = null;
-			unset ($tabSettings);
-
-			return;
-		}
-
 		if (empty($tabSettings['id'])) {
 			$tabSettings['id'] = $this->getId() . $tabSettings['num'];
 		}
@@ -166,7 +167,7 @@ class TabsWidget extends \CWidget {
 		} elseif ($tabSettings['loadType'] == self::LOAD_GET_PARAM || $tabSettings['loadType'] == self::LOAD_AJAX) {
 			$dataLoadUrl = $this->loadUrl;
 			$dataLoadUrl[$this->getParam] = $tabID;
-			$tabSettings['url'] = \CHtml::normalizeUrl($dataLoadUrl);
+			if (empty($tabSettings['url'])) $tabSettings['url'] = \CHtml::normalizeUrl($dataLoadUrl);
 		}
 
 		if (!isset($tabSettings['url']) || !is_string($tabSettings['url'])) $tabSettings['url'] = '';
@@ -193,14 +194,16 @@ class TabsWidget extends \CWidget {
 
 		// Render tab content
 		if ($this->loadType == self::LOAD_ONETIME || $tabSettings['active']) {
-			if (is_callable($tabSettings['content'])) {
+			if (!empty ($tabSettings['content']) && is_callable($tabSettings['content'])) {
 				$tabSettings['content'] = $tabSettings['content']();
 			}
 		}
 
 		if (empty ($tabSettings['content']) || !is_string($tabSettings['content'])) {
-			$tabSettings['content'] = '';
+			if ($this->tabContent && $tabSettings['active']) $tabSettings['content'] = $this->tabContent;
+			else $tabSettings['content'] = '';
 		}
+
 	}
 
 }

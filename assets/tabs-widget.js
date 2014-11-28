@@ -29,7 +29,7 @@ $( document ).on('show.bs.tab', '.nav-tabs a[data-toggle="tab"]', function( even
         $.ajax({
             type: "GET",
             url: url,
-            error: function(){
+            error: function(data){
                 window.location = url;
             },
             success: function(data){
