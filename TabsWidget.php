@@ -76,7 +76,7 @@ class TabsWidget extends \CWidget {
 		if ($tabFromRequest) $this->openTab = $tabFromRequest;
 
 		foreach ($this->items as $i => $item) {
-			if (isset($item["visible"]) && !$item["visible"]) {
+			if (empty($item) || isset($item["visible"]) && !$item["visible"]) {
 				unset($this->items[$i]);
 			} else {
 				$this->items[$i]['num'] = $i;
@@ -126,9 +126,9 @@ class TabsWidget extends \CWidget {
 				$tabPanelOptions['class'] = '';
 			}
 
-			$tabPanelOptions['class'] .= ' tab-pane';
+			$tabPanelOptions['class'] .= ' tab-pane fade';
 			if ($item['active']) {
-				$tabPanelOptions['class'] .= ' active';
+				$tabPanelOptions['class'] .= ' active in';
 			}
 			$tabPanelOptions['id'] = $item['id'];
 
@@ -140,7 +140,7 @@ class TabsWidget extends \CWidget {
 			$tabs[] = \CHtml::tag('div', $tabPanelOptions, $item['content']);
 		}
 
-		echo \CHtml::tag('ul', ['class' => 'nav nav-tabs', 'role' => 'tablist'], join('', $labels));
+		echo \CHtml::tag('ul', ['class' => 'nav nav-tabs hidden-print', 'role' => 'tablist'], join('', $labels));
 		echo \CHtml::tag('div', ['class' => 'tab-content'], join('', $tabs));
 	}
 
@@ -150,6 +150,9 @@ class TabsWidget extends \CWidget {
 	 */
 	protected function normalizeTabSettings(&$tabSettings)
 	{
+		if (empty($tabSettings)) {
+			return;
+		}
 
 		if (empty($tabSettings['id'])) {
 			$tabSettings['id'] = $this->getId() . $tabSettings['num'];

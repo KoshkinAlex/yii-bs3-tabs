@@ -23,9 +23,14 @@ $( document ).on('show.bs.tab', '.nav-tabs a[data-toggle="tab"]', function( even
     } else {
         return true;
     }
-    location.hash = container;
+
+    if(history.pushState) {
+        history.pushState(null, null, container);
+    } else {
+        location.hash = container;
+    }
+
     if ($(container).is(':empty')) {
-        console.log("Loading tab " + container);
         $.ajax({
             type: "GET",
             url: url,
